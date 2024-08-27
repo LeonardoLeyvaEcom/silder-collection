@@ -1,0 +1,129 @@
+<!-- Incluir jQuery -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js" integrity="sha512-STof4xm1wgkfm7heWqFJVn58Hm3EtS31XFaagaa8VMReCXAkQnJZ+jEy8PCC/iT18dFy95WcExNHFTqLyp72eQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<!-- Incluir Slick Carousel -->
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
+<style>
+  #gallery button {
+    display: none !important;
+  }
+
+  #gallery {
+    margin: 1rem;
+  }
+
+  #gallery img {
+    margin: 5px; /* Espaciado entre imágenes */
+    height: 300px; /* Altura por defecto (retrato) */
+    width: 200px; /* Ancho por defecto (retrato) */
+    cursor: pointer; /* Cambia el cursor para indicar que es clicable */
+  }
+</style>
+
+<h1>{{ section.settings.title }}</h1> <!-- Título personalizado -->
+
+<div id="gallery">
+  {% assign collection_url = section.settings.url_banner %}
+  {% for product in collections[section.settings.collection].products %}
+    <img src="{{ product.featured_image | img_url: 'master' }}" data-url="{{ collection_url }}">
+  {% endfor %}
+</div>
+
+<script>
+  $(document).ready(function(){
+    // Convertir la velocidad a milisegundos y asegurarse de que sea un número válido
+    var autoplaySpeed = parseInt({{ section.settings.autoplay_speed }}) * 1000 || 5000; // Si no hay un valor válido, usa 5000ms
+
+    $('#gallery').slick({
+      slidesToShow: 3,
+      slidesToScroll: 1,
+      autoplay: true,
+      autoplaySpeed: autoplaySpeed,
+      speed: 5000,
+      pauseOnHover: false,
+      cssEase: 'linear',
+      responsive: [
+        {
+          breakpoint: 767,
+          settings: {
+            slidesToShow: 1,
+          }
+        }
+      ]
+    });
+
+    // Ajustar el tamaño de la imagen según la relación de aspecto seleccionada
+    var imageRatio = '{{ section.settings.image_ratio }}';
+    if (imageRatio === 'portrait') {
+      $('#gallery img').css({ height: '300px', width: '200px' });
+    } else if (imageRatio === 'square') {
+      $('#gallery img').css({ height: '200px', width: '200px' });
+    } else if (imageRatio === 'adapt') {
+      $('#gallery img').css({ height: 'auto', width: 'auto' });
+    }
+
+    // Redirigir al URL seleccionado al hacer clic en una imagen
+    $('#gallery img').on('click', function() {
+      var url = $(this).data('url');
+      window.location.href = url;
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Slider Imagen",
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "default": "Collections",
+      "label": "Título"
+    },
+    {
+      "type": "url",
+      "id": "url_banner",
+      "label": "URL de Redirección",
+      "default": "/collections/all"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Colección",
+      "info": "Selecciona una colección de productos"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:sections.main-list-collections.settings.image_ratio.options__1.label"
+        },
+        {
+          "value": "portrait",
+          "label": "t:sections.main-list-collections.settings.image_ratio.options__2.label"
+        },
+        {
+          "value": "square",
+          "label": "t:sections.main-list-collections.settings.image_ratio.options__3.label"
+        }
+      ],
+      "default": "adapt",
+      "label": "Relación de Aspecto de la Imagen",
+      "info": "Selecciona la relación de aspecto de las imágenes"
+    },
+    
+  ],
+  "presets": [
+    {
+      "name": "Slider Imagen"
+    }
+  ]
+}
+{% endschema %}
+
+
+
